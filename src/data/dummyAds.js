@@ -9,24 +9,7 @@ export const dummyAds = [
     budget: "₹40,000 / month",
     images: ["/ads/ad1.jpg", "/ads/ad2.jpg"],
   },
-  {
-    id: 2,
-    type: "employee",
-    title: "Looking for Accounting Job",
-    description: "B.Com graduate with 3 years experience.",
-    contact: "9876543210",
-    location: { state: "Maharashtra", city: "Pune", pincode: "411001" },
-    images: ["/ads/ad2.jpg", "/ads/ad3.jpg"],
-  },
-  {
-    id: 3,
-    type: "employer",
-    title: "Hiring React Developer",
-    description: "React developer required, 2+ years experience.",
-    contact: "hr@techsoft.com",
-    location: { state: "Telangana", city: "Hyderabad", pincode: "500081" },
-    images: ["/ads/ad3.jpg", "/ads/ad4.jpg"],
-  },
+
   {
     id: 4,
     type: "service_provider",
@@ -78,43 +61,4 @@ export const dummyAds = [
     location: { state: "Rajasthan", city: "Jaipur", pincode: "302019" },
     images: ["/ads/ad3.jpg"],
   },
-  {
-    id: 9,
-    type: "employee",
-    title: "Looking for Data Entry Job",
-    description: "Fresher looking for part-time work.",
-    contact: "dataentry@gmail.com",
-    location: { state: "Uttar Pradesh", city: "Noida", pincode: "201301" },
-    images: ["/ads/ad4.jpg"],
-  },
-  {
-    id: 10,
-    type: "employer",
-    title: "Hiring Office Boy",
-    description: "Office boy required full-time.",
-    contact: "office@company.com",
-    location: { state: "Maharashtra", city: "Mumbai", pincode: "400001" },
-    images: ["/ads/ad1.jpg"],
-  },
-
-  /* ========= DUPLICATE PATTERN FOR TESTING ========= */
-
-  ...Array.from({ length: 20 }).map((_, i) => ({
-    id: 11 + i,
-    type: ["buyer", "seller", "service_provider", "employee", "employer"][
-      i % 5
-    ],
-    title: `Sample Ad Title ${i + 11}`,
-    description: "This is dummy data for testing filters.",
-    contact: i % 2 === 0 ? "9999999999" : "test@email.com",
-    location: {
-      state: ["Karnataka", "Maharashtra", "Delhi", "Gujarat", "Telangana"][
-        i % 5
-      ],
-      city: "Test City",
-      pincode: `${560000 + i}`,
-    },
-    budget: i % 2 === 0 ? `₹${10000 + i * 500}` : undefined,
-    images: ["/ads/ad1.jpg", "/ads/ad2.jpg"],
-  })),
 ];
