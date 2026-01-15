@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PostAdModal({ onClose }) {
+  const router = useRouter();
   const [form, setForm] = useState({
     type: "buyer",
     contact: "",
@@ -104,23 +106,21 @@ export default function PostAdModal({ onClose }) {
       return;
     }
 
-    alert("Ad posted successfully!");
+    alert("Ad posted successfully! Redirecting to home...");
+
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
+
     onClose();
   };
 
   return (
     <div className="w-full flex justify-center mt-10">
       <div className="bg-white w-[420px] rounded-lg shadow-md border">
-
         {/* Header */}
         <div className="relative text-center py-4 border-b">
           <h2 className="text-lg font-semibold">Post Your Ad</h2>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-3 text-xl"
-          >
-            ×
-          </button>
         </div>
 
         {/* Form */}
@@ -128,7 +128,6 @@ export default function PostAdModal({ onClose }) {
           className="px-5 py-4 space-y-4 text-sm overflow-y-auto"
           style={{ maxHeight: "calc(90vh - 60px)" }}
         >
-
           {/* Contact */}
           <div>
             <label className="block text-center mb-2">
@@ -146,9 +145,7 @@ export default function PostAdModal({ onClose }) {
             <label className="block text-center mb-2">I am</label>
             <select
               className="w-full border rounded px-3 py-2"
-              onChange={(e) =>
-                updateField("type", e.target.value)
-              }
+              onChange={(e) => updateField("type", e.target.value)}
             >
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
@@ -165,6 +162,7 @@ export default function PostAdModal({ onClose }) {
             </label>
             <input
               className="w-full border rounded px-3 py-2"
+              placeholder="enter name or business name"
               onChange={(e) => updateField("name", e.target.value)}
             />
           </div>
@@ -173,6 +171,7 @@ export default function PostAdModal({ onClose }) {
           <div>
             <label className="block text-center mb-2">Address</label>
             <input
+              placeholder="Enter address"
               className="w-full border rounded px-3 py-2"
               onChange={(e) => updateField("address", e.target.value)}
             />
@@ -197,9 +196,7 @@ export default function PostAdModal({ onClose }) {
             <label className="block mb-1">All India</label>
             <input
               type="checkbox"
-              onChange={(e) =>
-                updateField("allIndia", e.target.checked)
-              }
+              onChange={(e) => updateField("allIndia", e.target.checked)}
             />
           </div>
 
@@ -222,9 +219,7 @@ export default function PostAdModal({ onClose }) {
             className="w-full border rounded px-3 py-2"
             placeholder="Short description (max 50 words)"
             rows={2}
-            onChange={(e) =>
-              updateField("shortDescription", e.target.value)
-            }
+            onChange={(e) => updateField("shortDescription", e.target.value)}
           />
 
           {/* Detailed Description */}
@@ -232,9 +227,7 @@ export default function PostAdModal({ onClose }) {
             className="w-full border rounded px-3 py-2"
             placeholder="Detailed description (max 500 words)"
             rows={4}
-            onChange={(e) =>
-              updateField("detailedDescription", e.target.value)
-            }
+            onChange={(e) => updateField("detailedDescription", e.target.value)}
           />
 
           {/* Image Upload */}

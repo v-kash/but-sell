@@ -1,7 +1,10 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterEmployer() {
+
+  const router = useRouter();
   const [image, setImage] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -38,7 +41,7 @@ export default function RegisterEmployer() {
 
     // 1️⃣ Get presigned URL
 
-          const safeName = file.name.replace(/\s+/g, "_");
+    const safeName = file.name.replace(/\s+/g, "_");
 
     const res = await fetch("/api/upload-url", {
       method: "POST",
@@ -95,7 +98,11 @@ export default function RegisterEmployer() {
       return;
     }
 
-    alert("Employer registered successfully!");
+    alert("Employer registered successfully! Redirecting to home...");
+
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
   };
 
   return (
@@ -194,7 +201,7 @@ export default function RegisterEmployer() {
           </div>
 
           {/* Company Image */}
-          <div className="text-center">
+          {/* <div className="text-center">
             <label className="block mb-2">Upload Company Photo</label>
             <input
               type="file"
@@ -205,6 +212,62 @@ export default function RegisterEmployer() {
             />
             <div className="text-xs text-gray-600 mt-1">
               Upload 1 image only
+            </div>
+          </div> */}
+
+          <div className="text-center">
+            <label className="block mb-2 font-medium text-gray-700">
+              Upload Company Photo
+            </label>
+
+            <label className="relative cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={uploading || imageUrl}
+                className="hidden"
+              />
+              <div
+                className={`
+      inline-flex items-center justify-center px-4 py-3 
+      border-2 border-dashed rounded-lg transition-all w-full
+      ${
+        uploading || imageUrl
+          ? "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
+          : "border-gray-400 bg-gray-50 hover:bg-gray-100 hover:border-gray-500 text-gray-700 cursor-pointer"
+      }
+    `}
+              >
+                <svg
+                  className={`w-5 h-5 mr-2 ${uploading ? "animate-pulse" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
+                </svg>
+                <span className="text-sm font-medium">
+                  {uploading
+                    ? "Uploading..."
+                    : imageUrl
+                    ? "Photo Uploaded ✓"
+                    : "Choose Photo"}
+                </span>
+              </div>
+            </label>
+
+            <div className="text-xs text-gray-600 mt-2">
+              {uploading
+                ? "Uploading..."
+                : imageUrl
+                ? "1 photo uploaded"
+                : "Upload 1 image only"}
             </div>
           </div>
 

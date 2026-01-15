@@ -1,7 +1,10 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterEmployee() {
+
+  const router = useRouter();
   const [form, setForm] = useState({
     contact: "",
     name: "",
@@ -113,8 +116,11 @@ export default function RegisterEmployee() {
       alert(data.error || "Registration failed");
       return;
     }
+    alert("Employee registered successfully! Redirecting to home...");
 
-    alert("Employee registered successfully!");
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
   };
 
   return (
@@ -236,7 +242,7 @@ export default function RegisterEmployee() {
           </div>
 
           {/* Resume Upload */}
-          <div className="text-center">
+          {/* <div className="text-center">
             <label className="block mb-2">Upload Resume</label>
             <input
               type="file"
@@ -248,6 +254,122 @@ export default function RegisterEmployee() {
             />
             <div className="text-xs text-gray-600 mt-1">
               Upload 1 PDF OR max 2 images
+            </div>
+          </div> */}
+
+          <div className="text-center">
+            <label className="block mb-2 font-medium text-gray-700">
+              Upload Resume
+            </label>
+
+            {/* Show remove button if PDF is uploaded */}
+            {form.resumeFiles.some(
+              (url) =>
+                url.includes(".pdf") ||
+                url.toLowerCase().includes("pdf") ||
+                url.includes("application/pdf")
+            ) && (
+              <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 text-green-600 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">
+                      PDF uploaded successfully
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, resumeFiles: [] }))
+                    }
+                    className="text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 hover:bg-red-50 rounded"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* File upload area - disabled if PDF exists */}
+            {!form.resumeFiles.some(
+              (url) =>
+                url.includes(".pdf") ||
+                url.toLowerCase().includes("pdf") ||
+                url.includes("application/pdf")
+            ) && (
+              <label className="relative cursor-pointer">
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf,image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  disabled={uploading || form.resumeFiles.length >= 2}
+                />
+                <div
+                  className={`
+        inline-flex items-center justify-center px-4 py-3 
+        border-2 border-dashed rounded-lg transition-all w-full
+        ${
+          uploading || form.resumeFiles.length >= 2
+            ? "border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "border-gray-400 bg-gray-50 hover:bg-gray-100 hover:border-gray-500 text-gray-700 cursor-pointer"
+        }
+      `}
+                >
+                  <svg
+                    className={`w-5 h-5 mr-2 ${
+                      uploading ? "animate-pulse" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium">
+                    {uploading
+                      ? "Uploading..."
+                      : form.resumeFiles.length === 0
+                      ? "Choose Files"
+                      : `${form.resumeFiles.length} image${
+                          form.resumeFiles.length > 1 ? "s" : ""
+                        } selected`}
+                  </span>
+                </div>
+              </label>
+            )}
+
+            <div className="text-xs text-gray-600 mt-2">
+              {uploading
+                ? "Uploading files..."
+                : form.resumeFiles.some(
+                    (url) =>
+                      url.includes(".pdf") ||
+                      url.toLowerCase().includes("pdf") ||
+                      url.includes("application/pdf")
+                  )
+                ? "1 PDF file uploaded"
+                : form.resumeFiles.length === 0
+                ? "Upload 1 PDF OR max 2 images"
+                : `${form.resumeFiles.length}/2 images uploaded`}
             </div>
           </div>
 

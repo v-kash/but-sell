@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { useEffect } from "react";
+
 import AdCard from "@/components/AdCard";
 
 import EmployeeCard from "@/components/EmployeeCard";
@@ -31,6 +33,11 @@ export default function HomePage() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+
+  useEffect(() => {
+    // Clear old results when type changes
+    setResults([]);
+  }, [filters.type]);
 
   const handleSearch = async (reset = true) => {
     const hasAnySearch =
@@ -332,7 +339,7 @@ export default function HomePage() {
         </div>
 
         {/* RESULTS */}
-        <div className="bg-gray-100 pb-20">
+        <div className=" pb-20">
           <div className="max-w-6xl mx-auto px-4 mt-4 space-y-4">
             {results.length === 0 && (
               <div className="bg-white border p-8 text-center text-sm">
@@ -341,10 +348,14 @@ export default function HomePage() {
             )}
 
             {filters.type === "employees" &&
-              results.map((e) => <EmployeeCard key={e.id} employee={e} />)}
+              results.map((e, idx) => (
+                <EmployeeCard key={`${e.id}-${idx}`} employee={e} />
+              ))}
 
             {filters.type === "employers" &&
-              results.map((e) => <EmployerCard key={e.id} employer={e} />)}
+              results.map((e, idx) => (
+                <EmployerCard key={`${e.id}-${idx}`} employer={e} />
+              ))}
 
             {[
               "buyer",
@@ -353,7 +364,7 @@ export default function HomePage() {
               "service_reciever",
               "renter",
             ].includes(filters.type) &&
-              results.map((a) => <AdCard key={a.id} ad={a} />)}
+              results.map((a, idx) => <AdCard key={`${a.id}-${idx}`} ad={a} />)}
           </div>
         </div>
         {results.length > 0 && (
