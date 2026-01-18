@@ -10,6 +10,8 @@ export async function POST(req) {
       contact,
       name,
       address,
+      area,
+      taluka,
       district,
       state,
       pincode,
@@ -30,46 +32,53 @@ export async function POST(req) {
     }
 
  const query = `
-  INSERT INTO ads (
-    type,
-    title,
-    short_description,
-    detailed_description,
-    budget,
-    contact,
-    address,
-    district,
-    state,
-    pincode,
-    all_india,
-    images,
-    validity_days,
-    expires_at
-  )
-  VALUES (
-    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,
-    NOW() + make_interval(days => $13)
-  )
-  RETURNING id;
+INSERT INTO ads (
+  type,
+  title,
+  short_description,
+  detailed_description,
+  budget,
+  contact,
+  address,
+  area,
+  taluka,
+  district,
+  state,
+  pincode,
+  all_india,
+  images,
+  validity_days,
+  expires_at
+)
+VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8,
+  $9, $10, $11, $12, $13, $14, $15,
+  NOW() + make_interval(days => $15)
+)
+RETURNING id;
 `;
 
 
 
+
 const values = [
-  type,                         // $1
-  name || "",                   // $2
-  shortDescription || "",       // $3
-  detailedDescription || "",    // $4
-  budget || null,               // $5
-  contact,                      // $6
-  address,                      // $7
-  district,                     // $8
-  state,                        // $9
-  pincode,                      // $10
-  allIndia || false,            // $11
-  JSON.stringify(images || []), // $12
-  parseInt(validityDays, 10) || 3, // $13 (INTEGER ONLY)
+  type,                           // $1
+  name || "",                     // $2
+  shortDescription || "",         // $3
+  detailedDescription || "",      // $4
+  budget || null,                 // $5
+  contact,                        // $6
+  address,                        // $7
+  area || null,                   // $8
+  taluka || null,                 // $9
+  district,                       // $10
+  state,                          // $11
+  pincode,                        // $12
+  allIndia || false,              // $13
+  JSON.stringify(images || []),   // $14
+  parseInt(validityDays, 10) || 3 // $15
 ];
+
 
     const result = await pool.query(query, values);
 

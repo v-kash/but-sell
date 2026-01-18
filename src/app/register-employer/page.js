@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterEmployer() {
-
   const router = useRouter();
   const [image, setImage] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
@@ -13,6 +12,8 @@ export default function RegisterEmployer() {
     contact: "",
     companyName: "",
     address: "",
+    area: "",
+    taluka: "",
     district: "",
     state: "",
     pincode: "",
@@ -70,18 +71,6 @@ export default function RegisterEmployer() {
      Submit Employer
   ------------------------- */
   const submitEmployer = async () => {
-    if (
-      !form.contact ||
-      !form.companyName ||
-      !form.address ||
-      !form.state ||
-      !form.pincode ||
-      !form.jobTitle
-    ) {
-      alert("Please fill all required fields");
-      return;
-    }
-
     const res = await fetch("/api/employers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,13 +103,21 @@ export default function RegisterEmployer() {
         </div>
 
         {/* Form */}
-        <form className="px-5 py-4 space-y-4 text-sm">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitEmployer();
+          }}
+          className="px-5 py-4 space-y-4 text-sm"
+        >
           {/* Contact */}
           <div>
-            <label className="block text-center mb-2">
-              Mobile Number OR Email
+            <label className="flex justify-center items-center gap-1  ">
+              <span>Contact Email OR Phone Number</span>
+              <span className="text-red-500 text-xl mt-1">*</span>
             </label>
             <input
+              required
               className="w-full border rounded px-3 py-2 mb-2"
               placeholder="Enter mobile number OR email"
               onChange={(e) => updateField("contact", e.target.value)}
@@ -136,66 +133,71 @@ export default function RegisterEmployer() {
               onChange={(e) => updateField("companyName", e.target.value)}
             />
           </div>
-
           {/* Address */}
           <div>
-            <label className="block text-center mb-2">Address</label>
+            <label className="flex justify-center items-center gap-1  ">
+              <span>Address</span>
+              <span className="text-red-500 text-xl mt-1">*</span>
+            </label>
             <input
+              required
+              placeholder="Enter address / area"
               className="w-full border rounded px-3 py-2"
-              placeholder="Enter address"
               onChange={(e) => updateField("address", e.target.value)}
             />
           </div>
 
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="Area"
+            onChange={(e) => updateField("area", e.target.value)}
+          />
+
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="Taluka/Tehsil"
+            onChange={(e) => updateField("taluka", e.target.value)}
+          />
+
           {/* District */}
-          <div>
-            <label className="block text-center mb-2">District</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter district"
-              onChange={(e) => updateField("district", e.target.value)}
-            />
-          </div>
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="District"
+            onChange={(e) => updateField("district", e.target.value)}
+          />
 
           {/* State */}
-          <div>
-            <label className="block text-center mb-2">State</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter state"
-              onChange={(e) => updateField("state", e.target.value)}
-            />
-          </div>
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="State"
+            onChange={(e) => updateField("state", e.target.value)}
+          />
 
           {/* Pincode */}
-          <div>
-            <label className="block text-center mb-2">Pincode</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter pincode"
-              onChange={(e) => updateField("pincode", e.target.value)}
-            />
-          </div>
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="Pincode"
+            onChange={(e) => updateField("pincode", e.target.value)}
+          />
 
           {/* Job Title */}
-          <div>
-            <label className="block text-center mb-2">
-              Job Title / Work Profile
-            </label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="e.g. Sales Executive, Site Engineer"
-              onChange={(e) => updateField("jobTitle", e.target.value)}
-            />
-          </div>
 
           {/* Job Details */}
           <div>
-            <label className="block text-center mb-2">Job Details</label>
+            <label className="flex justify-center items-center gap-1  ">
+              <span>Description / Requirement</span>
+              <span className="text-red-500 text-xl mt-1">*</span>
+            </label>
             <textarea
+              required
               className="w-full border rounded px-3 py-2"
               rows={4}
-              placeholder="Describe job responsibilities, skills required, etc."
+              placeholder="Description / Requirement"
               onChange={(e) => updateField("jobDetails", e.target.value)}
             />
           </div>
@@ -256,8 +258,8 @@ export default function RegisterEmployer() {
                   {uploading
                     ? "Uploading..."
                     : imageUrl
-                    ? "Photo Uploaded ✓"
-                    : "Choose Photo"}
+                      ? "Photo Uploaded ✓"
+                      : "Choose Photo"}
                 </span>
               </div>
             </label>
@@ -266,15 +268,17 @@ export default function RegisterEmployer() {
               {uploading
                 ? "Uploading..."
                 : imageUrl
-                ? "1 photo uploaded"
-                : "Upload 1 image only"}
+                  ? "1 photo uploaded"
+                  : "Upload 1 image only"}
             </div>
           </div>
-
+          <p className="text-xs text-gray-500 text-center">
+            Fields marked with <span className="text-red-500">*</span> are
+            required
+          </p>
           {/* Submit */}
           <button
-            type="button"
-            onClick={submitEmployer}
+            type="submit"
             disabled={uploading}
             className="w-full bg-[#7b2c2c] text-white py-2 rounded mt-2"
           >

@@ -9,6 +9,8 @@ export async function POST(req) {
       contact,
       companyName,
       address,
+      area,
+      taluka,
       district,
       state,
       pincode,
@@ -17,27 +19,16 @@ export async function POST(req) {
       companyImage, // S3 URL
     } = body;
 
-    // Basic validation
-    if (
-      !contact ||
-      !companyName ||
-      !address ||
-      !district ||
-      !state ||
-      !pincode ||
-      !jobTitle
-    ) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+    
+   
 
     const query = `
       INSERT INTO employers (
         company_name,
         contact,
         address,
+        area,
+        taluka,
         district,
         state,
         pincode,
@@ -45,7 +36,7 @@ export async function POST(req) {
         job_details,
         company_image
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       RETURNING id;
     `;
 
@@ -53,10 +44,12 @@ export async function POST(req) {
       companyName,
       contact,
       address,
+      area,
+      taluka,
       district,
       state,
       pincode,
-      jobTitle,
+      jobTitle || "",
       jobDetails || "",
       companyImage || null,
     ];

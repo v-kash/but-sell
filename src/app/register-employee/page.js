@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterEmployee() {
-
   const router = useRouter();
   const [form, setForm] = useState({
     contact: "",
@@ -135,77 +134,76 @@ export default function RegisterEmployee() {
         <form className="px-5 py-4 space-y-4 text-sm">
           {/* Contact */}
           <div>
-            <label className="block text-center mb-2">
-              Contact Number OR Email
+            <label className="flex justify-center items-center gap-1  ">
+              <span>Contact Email OR Phone Number</span>
+              <span className="text-red-500 text-xl mt-1">*</span>
             </label>
             <input
+              required
               className="w-full border rounded px-3 py-2 mb-2"
-              placeholder="Enter phone number OR email"
+              placeholder="Enter mobile number OR email"
               onChange={(e) => updateField("contact", e.target.value)}
             />
           </div>
 
           {/* Name */}
           <div>
-            <label className="block text-center mb-2">Name</label>
+            <label className="flex justify-center items-center gap-1  ">
+              <span>Name</span>
+              <span className="text-red-500 text-xl mt-1">*</span>
+            </label>
             <input
+            required
               className="w-full border rounded px-3 py-2"
               placeholder="Enter full name"
               onChange={(e) => updateField("name", e.target.value)}
             />
           </div>
 
-          {/* Area / Town / Village */}
-          <div>
-            <label className="block text-center mb-2">
-              Area / Town / Village
-            </label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter area / town / village"
-              onChange={(e) => updateField("area", e.target.value)}
-            />
-          </div>
-
           {/* Address */}
           <div>
-            <label className="block text-center mb-2">Address</label>
+            <label className="flex justify-center items-center gap-1  ">
+              <span>Address</span>
+              <span className="text-red-500 text-xl mt-1">*</span>
+            </label>
             <input
+              required
+              placeholder="Enter address / area"
               className="w-full border rounded px-3 py-2"
-              placeholder="Enter address"
               onChange={(e) => updateField("address", e.target.value)}
             />
           </div>
 
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="Area / Town / Village"
+            onChange={(e) => updateField("area", e.target.value)}
+          />
+
           {/* District */}
-          <div>
-            <label className="block text-center mb-2">District</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter district"
-              onChange={(e) => updateField("district", e.target.value)}
-            />
-          </div>
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="District"
+            onChange={(e) => updateField("district", e.target.value)}
+          />
 
           {/* State */}
-          <div>
-            <label className="block text-center mb-2">State</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter state"
-              onChange={(e) => updateField("state", e.target.value)}
-            />
-          </div>
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="State"
+            onChange={(e) => updateField("state", e.target.value)}
+          />
 
           {/* Pincode */}
-          <div>
-            <label className="block text-center mb-2">Pincode</label>
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter pincode"
-              onChange={(e) => updateField("pincode", e.target.value)}
-            />
-          </div>
+          <input
+            required
+            className="w-full border rounded px-3 py-2"
+            placeholder="Pincode"
+            onChange={(e) => updateField("pincode", e.target.value)}
+          />
 
           {/* Education */}
           <div>
@@ -267,7 +265,7 @@ export default function RegisterEmployee() {
               (url) =>
                 url.includes(".pdf") ||
                 url.toLowerCase().includes("pdf") ||
-                url.includes("application/pdf")
+                url.includes("application/pdf"),
             ) && (
               <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between">
@@ -307,7 +305,7 @@ export default function RegisterEmployee() {
               (url) =>
                 url.includes(".pdf") ||
                 url.toLowerCase().includes("pdf") ||
-                url.includes("application/pdf")
+                url.includes("application/pdf"),
             ) && (
               <label className="relative cursor-pointer">
                 <input
@@ -348,10 +346,10 @@ export default function RegisterEmployee() {
                     {uploading
                       ? "Uploading..."
                       : form.resumeFiles.length === 0
-                      ? "Choose Files"
-                      : `${form.resumeFiles.length} image${
-                          form.resumeFiles.length > 1 ? "s" : ""
-                        } selected`}
+                        ? "Choose Files"
+                        : `${form.resumeFiles.length} image${
+                            form.resumeFiles.length > 1 ? "s" : ""
+                          } selected`}
                   </span>
                 </div>
               </label>
@@ -361,15 +359,15 @@ export default function RegisterEmployee() {
               {uploading
                 ? "Uploading files..."
                 : form.resumeFiles.some(
-                    (url) =>
-                      url.includes(".pdf") ||
-                      url.toLowerCase().includes("pdf") ||
-                      url.includes("application/pdf")
-                  )
-                ? "1 PDF file uploaded"
-                : form.resumeFiles.length === 0
-                ? "Upload 1 PDF OR max 2 images"
-                : `${form.resumeFiles.length}/2 images uploaded`}
+                      (url) =>
+                        url.includes(".pdf") ||
+                        url.toLowerCase().includes("pdf") ||
+                        url.includes("application/pdf"),
+                    )
+                  ? "1 PDF file uploaded"
+                  : form.resumeFiles.length === 0
+                    ? "Upload 1 PDF OR max 2 images"
+                    : `${form.resumeFiles.length}/2 images uploaded`}
             </div>
           </div>
 

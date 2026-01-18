@@ -37,9 +37,9 @@ export default function EmployerCard({ employer }) {
           <div className="font-bold text-lg text-gray-900">
             {employer.company_name}
           </div>
-          <div className="font-medium text-gray-800">
+          {/* <div className="font-medium text-gray-800">
             {employer.job_title}
-          </div>
+          </div> */}
         </div>
 
         {/* META INFO */}

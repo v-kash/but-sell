@@ -5,10 +5,11 @@ export default function SearchPopup({ mode, onClose, onSearch }) {
   const [type, setType] = useState("buyer");
   const [pincode, setPincode] = useState("");
   const [district, setDistrict] = useState("");
+  const [description, setDescription] = useState("");
 
   const handleSearch = () => {
-    if (!pincode && !district) {
-      alert("Please enter pincode or district");
+    if (!pincode && !district && !description) {
+      alert("Please enter pincode or district or description ");
       return;
     }
 
@@ -17,6 +18,7 @@ export default function SearchPopup({ mode, onClose, onSearch }) {
       type,
       pincode,
       district,
+      description,
     });
 
     onClose();
@@ -38,9 +40,9 @@ export default function SearchPopup({ mode, onClose, onSearch }) {
           >
             <option value="buyer">Buyer</option>
             <option value="seller">Seller</option>
+            <option value="renter">Renter</option>
             <option value="service_provider">Service Provider</option>
             <option value="service_receiver">Service Receiver</option>
-            <option value="renter">Renter</option>
           </select>
         )}
 
@@ -53,16 +55,22 @@ export default function SearchPopup({ mode, onClose, onSearch }) {
 
         <input
           className="w-full border px-3 py-2 mb-4"
-          placeholder="District"
+          placeholder="State / District / area / Taluka(Tehsil)"
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
         />
+        {mode === "ads" && (
+          <textarea
+            className="w-full border px-3 py-2 mb-4"
+            rows={2}
+            placeholder="Description / Requirement"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        )}
 
         <div className="flex justify-between">
-          <button
-            onClick={onClose}
-            className="border px-4 py-1"
-          >
+          <button onClick={onClose} className="border px-4 py-1">
             Cancel
           </button>
 

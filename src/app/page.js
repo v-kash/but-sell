@@ -56,7 +56,8 @@ export default function HomePage() {
         filters.type === "buyer" ||
         filters.type === "seller" ||
         filters.type === "service_provider" ||
-        filters.type === "service_reciever"
+        filters.type === "service_reciever" ||
+        filters.type === "renter"
           ? "ads"
           : filters.type,
     });
@@ -67,9 +68,13 @@ export default function HomePage() {
 
     // only ads have type
     if (
-      ["buyer", "seller", "service_provider", "service_reciever"].includes(
-        filters.type
-      )
+      [
+        "buyer",
+        "seller",
+        "service_provider",
+        "service_reciever",
+        "renter",
+      ].includes(filters.type)
     ) {
       params.append("type", filters.type);
     }
@@ -117,7 +122,13 @@ export default function HomePage() {
     mode: "", // ads | employee | employer
   });
 
-  const handlePopupSearch = async ({ mode, type, pincode, district }) => {
+  const handlePopupSearch = async ({
+    mode,
+    type,
+    pincode,
+    district,
+    description,
+  }) => {
     setLoading(true);
     setSearched(true);
 
@@ -144,11 +155,15 @@ export default function HomePage() {
 
     // STRICT LOCATION
     if (pincode) {
-      params.append("pincode", pincode);
-    } else {
-      params.append("district", district);
-    }
+    params.append("pincode", pincode);
+  } else if (district) {
+    params.append("district", district);
+  }
 
+  // ✅ DESCRIPTION SEARCH
+  if (description) {
+    params.append("q", description);
+  }
     const res = await fetch(`/api/search?${params.toString()}`);
     const data = await res.json();
 
@@ -245,11 +260,11 @@ export default function HomePage() {
               <option value="">Select Type</option>
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
+              <option value="renter">Renter</option>
               <option value="service_provider">Service Provider</option>
               <option value="service_reciever">Service Reciever</option>
               <option value="employees">Employee</option>
               <option value="employers">Employer</option>
-              <option value="renter">Renter</option>
             </select>
 
             <input
@@ -263,7 +278,7 @@ export default function HomePage() {
 
             <input
               className="border px-3 py-2 text-sm"
-              placeholder="State / District"
+              placeholder="State / District / area / Taluka(Tehsil)"
               value={filters.state}
               onChange={(e) =>
                 setFilters({ ...filters, state: e.target.value })
@@ -287,7 +302,7 @@ export default function HomePage() {
                   if (e.key === "ArrowDown") {
                     e.preventDefault();
                     setActiveIndex((prev) =>
-                      prev < suggestions.length - 1 ? prev + 1 : prev
+                      prev < suggestions.length - 1 ? prev + 1 : prev,
                     );
                   }
 

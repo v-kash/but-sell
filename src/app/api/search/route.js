@@ -5,11 +5,11 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const entity = searchParams.get("entity"); 
+    const entity = searchParams.get("entity"); // ads | employees | employers
     const pincode = searchParams.get("pincode");
-    const district = searchParams.get("district");
-    const title = searchParams.get("q");
-    const type = searchParams.get("type");
+    const location = searchParams.get("district"); // free-text location
+    const keyword = searchParams.get("q"); // description / requirement
+    const type = searchParams.get("type"); // ads only
 
     if (!entity) {
       return NextResponse.json(
@@ -18,9 +18,9 @@ export async function GET(req) {
       );
     }
 
-    if (!pincode && !district) {
+    if (!pincode && !location && !keyword) {
       return NextResponse.json(
-        { error: "Pincode or district is required" },
+        { error: "At least one search parameter is required" },
         { status: 400 }
       );
     }
@@ -41,19 +41,43 @@ export async function GET(req) {
       sql = `SELECT * FROM ads WHERE type = $${i++}`;
       values.push(type);
 
-      // STRICT PINCODE FIRST
+      const conditions = [];
+
+      // PINCODE
       if (pincode) {
-        sql += ` AND pincode = $${i++}`;
+        conditions.push(`pincode = $${i}`);
         values.push(pincode);
-      } else if (district) {
-        sql += ` AND district ILIKE $${i++}`;
-        values.push(`%${district}%`);
+        i++;
       }
 
-      // TITLE (optional)
-      if (title) {
-        sql += ` AND title ILIKE $${i++}`;
-        values.push(`%${title}%`);
+      // LOCATION (state / district / area / taluka)
+      if (location) {
+        conditions.push(`
+          (
+            state ILIKE $${i}
+            OR district ILIKE $${i}
+            OR area ILIKE $${i}
+            OR taluka ILIKE $${i}
+          )
+        `);
+        values.push(`%${location}%`);
+        i++;
+      }
+
+      // KEYWORD (title + detailed_description)
+      if (keyword) {
+        conditions.push(`
+          (
+            title ILIKE $${i}
+            OR detailed_description ILIKE $${i}
+          )
+        `);
+        values.push(`%${keyword}%`);
+        i++;
+      }
+
+      if (conditions.length > 0) {
+        sql += ` AND (${conditions.join(" OR ")})`;
       }
 
       sql += ` ORDER BY created_at DESC LIMIT 50`;
@@ -63,17 +87,35 @@ export async function GET(req) {
     if (entity === "employees") {
       sql = `SELECT * FROM employees WHERE 1=1`;
 
+      const conditions = [];
+
       if (pincode) {
-        sql += ` AND pincode = $${i++}`;
+        conditions.push(`pincode = $${i}`);
         values.push(pincode);
-      } else if (district) {
-        sql += ` AND district ILIKE $${i++}`;
-        values.push(`%${district}%`);
+        i++;
       }
 
-      if (title) {
-        sql += ` AND work_profile ILIKE $${i++}`;
-        values.push(`%${title}%`);
+      if (location) {
+        conditions.push(`
+          (
+            state ILIKE $${i}
+            OR district ILIKE $${i}
+            OR area ILIKE $${i}
+            OR taluka ILIKE $${i}
+          )
+        `);
+        values.push(`%${location}%`);
+        i++;
+      }
+
+      if (keyword) {
+        conditions.push(`work_profile ILIKE $${i}`);
+        values.push(`%${keyword}%`);
+        i++;
+      }
+
+      if (conditions.length > 0) {
+        sql += ` AND (${conditions.join(" OR ")})`;
       }
 
       sql += ` ORDER BY created_at DESC LIMIT 50`;
@@ -83,17 +125,38 @@ export async function GET(req) {
     if (entity === "employers") {
       sql = `SELECT * FROM employers WHERE 1=1`;
 
+      const conditions = [];
+
+      // PINCODE
       if (pincode) {
-        sql += ` AND pincode = $${i++}`;
+        conditions.push(`pincode = $${i}`);
         values.push(pincode);
-      } else if (district) {
-        sql += ` AND district ILIKE $${i++}`;
-        values.push(`%${district}%`);
+        i++;
       }
 
-      if (title) {
-        sql += ` AND job_title ILIKE $${i++}`;
-        values.push(`%${title}%`);
+      // LOCATION
+      if (location) {
+        conditions.push(`
+          (
+            state ILIKE $${i}
+            OR district ILIKE $${i}
+            OR area ILIKE $${i}
+            OR taluka ILIKE $${i}
+          )
+        `);
+        values.push(`%${location}%`);
+        i++;
+      }
+
+      // 🔥 KEYWORD MATCHES job_details (YOUR REQUIREMENT)
+      if (keyword) {
+        conditions.push(`job_details ILIKE $${i}`);
+        values.push(`%${keyword}%`);
+        i++;
+      }
+
+      if (conditions.length > 0) {
+        sql += ` AND (${conditions.join(" OR ")})`;
       }
 
       sql += ` ORDER BY created_at DESC LIMIT 50`;
