@@ -155,15 +155,15 @@ export default function HomePage() {
 
     // STRICT LOCATION
     if (pincode) {
-    params.append("pincode", pincode);
-  } else if (district) {
-    params.append("district", district);
-  }
+      params.append("pincode", pincode);
+    } else if (district) {
+      params.append("district", district);
+    }
 
-  // ✅ DESCRIPTION SEARCH
-  if (description) {
-    params.append("q", description);
-  }
+    // ✅ DESCRIPTION SEARCH
+    if (description) {
+      params.append("q", description);
+    }
     const res = await fetch(`/api/search?${params.toString()}`);
     const data = await res.json();
 
@@ -253,7 +253,7 @@ export default function HomePage() {
         <div className="bg-gray-100 py-4 border-b">
           <div className="max-w-6xl mx-auto px-4 flex gap-2 flex-wrap">
             <select
-              className="border px-3 py-2 text-sm"
+              className="border px-3 py-2 text-sm "
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             >
@@ -268,7 +268,7 @@ export default function HomePage() {
             </select>
 
             <input
-              className="border px-3 py-2 text-sm"
+              className="border px-3 py-2 text-sm "
               placeholder="Pincode"
               value={filters.pincode}
               onChange={(e) =>
@@ -277,14 +277,14 @@ export default function HomePage() {
             />
 
             <input
-              className="border px-3 py-2 text-sm"
-              placeholder="State / District / area / Taluka(Tehsil)"
+              className="border px-3 py-2 text-sm w-[260px]"
+              placeholder="State / District / area / Taluka (Tehsil)"
               value={filters.state}
               onChange={(e) =>
                 setFilters({ ...filters, state: e.target.value })
               }
             />
-            <div className="relative">
+            <div className="relative flex-1 min-w-[220px]">
               <input
                 className="border px-3 py-2 text-sm w-full"
                 placeholder="Title / Profile / Job"
@@ -346,7 +346,7 @@ export default function HomePage() {
 
             <button
               onClick={() => handleSearch(true)}
-              className="border px-4 py-2 text-sm bg-[#8b3a3a]"
+              className="border px-4 py-2 text-sm bg-[#8b3a3a] w-[120px]"
             >
               Search
             </button>

@@ -55,7 +55,7 @@ export default function SearchPopup({ mode, onClose, onSearch }) {
 
         <input
           className="w-full border px-3 py-2 mb-4"
-          placeholder="State / District / area / Taluka(Tehsil)"
+          placeholder="State / District / area / Taluka (Tehsil)"
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
         />
