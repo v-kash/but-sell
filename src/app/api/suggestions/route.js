@@ -12,9 +12,9 @@ export async function GET(req) {
 
     const sql = `
       (
-        SELECT DISTINCT title AS value
+        SELECT DISTINCT detailed_description AS value
         FROM ads
-        WHERE title ILIKE $1
+        WHERE detailed_description ILIKE $1
         LIMIT 5
       )
       UNION
@@ -26,9 +26,9 @@ export async function GET(req) {
       )
       UNION
       (
-        SELECT DISTINCT job_title AS value
+        SELECT DISTINCT job_details AS value
         FROM employers
-        WHERE job_title ILIKE $1
+        WHERE job_details ILIKE $1
         LIMIT 5
       )
       LIMIT 10;
@@ -36,7 +36,7 @@ export async function GET(req) {
 
     const result = await pool.query(sql, [`%${q}%`]);
 
-    return NextResponse.json(result.rows.map(r => r.value));
+    return NextResponse.json(result.rows.map((r) => r.value));
   } catch (err) {
     console.error("Suggestion error", err);
     return NextResponse.json([]);

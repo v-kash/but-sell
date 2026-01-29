@@ -14,14 +14,14 @@ export async function GET(req) {
     if (!entity) {
       return NextResponse.json(
         { error: "Entity is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!pincode && !location && !keyword) {
       return NextResponse.json(
         { error: "At least one search parameter is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,7 +34,7 @@ export async function GET(req) {
       if (!type) {
         return NextResponse.json(
           { error: "Ad type is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -64,14 +64,11 @@ export async function GET(req) {
         i++;
       }
 
-      // KEYWORD (title + detailed_description)
+      // KEYWORD (ONLY detailed_description)
       if (keyword) {
         conditions.push(`
-          (
-            title ILIKE $${i}
-            OR detailed_description ILIKE $${i}
-          )
-        `);
+    detailed_description ILIKE $${i}
+  `);
         values.push(`%${keyword}%`);
         i++;
       }
@@ -171,9 +168,6 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error("Search Error:", error);
-    return NextResponse.json(
-      { error: "Search failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Search failed" }, { status: 500 });
   }
 }

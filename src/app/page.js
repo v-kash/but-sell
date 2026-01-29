@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 import AdCard from "@/components/AdCard";
 
@@ -9,6 +10,7 @@ import EmployerCard from "@/components/EmployerCard";
 import SearchPopup from "@/components/SearchPopup";
 
 import { useRouter } from "next/navigation";
+import LoginRequiredPopup from "@/components/LoginRequiredPopup";
 
 function debounce(fn, delay = 300) {
   let timer;
@@ -33,6 +35,8 @@ export default function HomePage() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const { loggedIn } = useAuth();
 
   useEffect(() => {
     // Clear old results when type changes
@@ -192,21 +196,31 @@ export default function HomePage() {
           {/* TOP BUTTONS */}
           <div className="flex justify-center gap-4 flex-wrap mb-6">
             <button
-              onClick={() => router.push("/post-ad")}
+              onClick={() =>
+                loggedIn ? router.push("/post-ad") : setShowLoginPopup(true)
+              }
               className="bg-gray-200 text-black px-6 py-2 rounded border"
             >
               Post Your Ad Here
             </button>
 
             <button
-              onClick={() => router.push("/register-employee")}
+              onClick={() =>
+                loggedIn
+                  ? router.push("/register-employee")
+                  : setShowLoginPopup(true)
+              }
               className="bg-gray-200 text-black px-6 py-2 rounded border"
             >
               Register as Employee
             </button>
 
             <button
-              onClick={() => router.push("/register-employer")}
+              onClick={() =>
+                loggedIn
+                  ? router.push("/register-employer")
+                  : setShowLoginPopup(true)
+              }
               className="bg-gray-200 text-black px-6 py-2 rounded border"
             >
               Register as Employer
@@ -287,7 +301,7 @@ export default function HomePage() {
             <div className="relative flex-1 min-w-[220px]">
               <input
                 className="border px-3 py-2 text-sm w-full"
-                placeholder="Title / Profile / Job"
+                placeholder="Description / Requirement"
                 value={filters.title}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -400,6 +414,12 @@ export default function HomePage() {
           mode={popup.mode}
           onClose={() => setPopup({ open: false, mode: "" })}
           onSearch={handlePopupSearch}
+        />
+      )}
+      {showLoginPopup && (
+        <LoginRequiredPopup
+          onClose={() => setShowLoginPopup(false)}
+          onLogin={() => router.push("/login")}
         />
       )}
     </div>

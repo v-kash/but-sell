@@ -153,7 +153,7 @@ export default function RegisterEmployee() {
               <span className="text-red-500 text-xl mt-1">*</span>
             </label>
             <input
-            required
+              required
               className="w-full border rounded px-3 py-2"
               placeholder="Enter full name"
               onChange={(e) => updateField("name", e.target.value)}
@@ -168,7 +168,7 @@ export default function RegisterEmployee() {
             </label>
             <input
               required
-              placeholder="Enter address / area"
+              placeholder="Enter address "
               className="w-full border rounded px-3 py-2"
               onChange={(e) => updateField("address", e.target.value)}
             />
@@ -177,7 +177,7 @@ export default function RegisterEmployee() {
           <input
             required
             className="w-full border rounded px-3 py-2"
-            placeholder="Area / Town / Village"
+            placeholder="Taluka/Tehsil"
             onChange={(e) => updateField("area", e.target.value)}
           />
 
@@ -218,11 +218,11 @@ export default function RegisterEmployee() {
           {/* Job title / Work profile */}
           <div>
             <label className="block text-center mb-2">
-              Job Title / Work Profile
+              Description / Requirement
             </label>
             <input
               className="w-full border rounded px-3 py-2"
-              placeholder="e.g. Accountant, Electrician"
+              placeholder="Description / Requirement"
               onChange={(e) => updateField("workProfile", e.target.value)}
             />
           </div>

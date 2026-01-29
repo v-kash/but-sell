@@ -113,8 +113,6 @@ export default function PostAdModal({ onClose }) {
     setTimeout(() => {
       router.push("/");
     }, 3000);
-
-    
   };
 
   return (
@@ -173,7 +171,7 @@ export default function PostAdModal({ onClose }) {
               Name OR Business Name
             </label>
             <input
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 uppercase"
               placeholder="enter name or business name"
               onChange={(e) => updateField("name", e.target.value)}
             />
@@ -187,7 +185,7 @@ export default function PostAdModal({ onClose }) {
             </label>
             <input
               required
-              placeholder="Enter address / area"
+              placeholder="Enter address "
               className="w-full border rounded px-3 py-2"
               onChange={(e) => updateField("address", e.target.value)}
             />
@@ -268,7 +266,7 @@ export default function PostAdModal({ onClose }) {
               <span className="text-red-500 text-xl mt-1">*</span>
             </label>
             <textarea
-            required
+              required
               className="w-full border rounded px-3 py-2"
               placeholder="Description / Requirement (max 500 words)"
               rows={4}

@@ -141,7 +141,7 @@ export default function RegisterEmployer() {
             </label>
             <input
               required
-              placeholder="Enter address / area"
+              placeholder="Enter address "
               className="w-full border rounded px-3 py-2"
               onChange={(e) => updateField("address", e.target.value)}
             />

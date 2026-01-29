@@ -1,23 +1,88 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
+import AuthCard from "@/components/AuthCard";
+import PasswordInput from "@/components/PasswordInput";
 
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(""); // ✅
 
-export default function Login() {
-const router = useRouter();
+  const handleLogin = async () => {
+    setError("");
 
+    if (!email || !password) {
+      setError("Email and password are required");
+      return;
+    }
 
-function handleLogin() {
-localStorage.setItem("loggedIn", "true");
-router.push("/dashboard");
-}
+    setLoading(true);
 
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-return (
-<div className="max-w-sm mx-auto mt-20 bg-white p-6 rounded shadow">
-<h2 className="text-xl mb-4">Login</h2>
-<input className="w-full border p-2 mb-3" placeholder="Email" />
-<input className="w-full border p-2 mb-3" type="password" placeholder="Password" />
-<button onClick={handleLogin} className="w-full bg-[#7b2c2c] text-white py-2">Login</button>
-</div>
-);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Invalid credentials");
+      } else {
+        // ✅ ADMIN vs USER redirect
+        if (data.isAdmin) {
+          window.location.href = "/admin/ads";
+        } else {
+          window.location.href = "/";
+        }
+      }
+    } catch {
+      setError("Something went wrong");
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <AuthCard title="Login to BuySellRS">
+      <div className="space-y-4">
+        <input
+          className="border w-full px-3 py-2 text-sm"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <PasswordInput
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {error && <p className="text-xs text-red-600">{error}</p>}
+
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className={`w-full py-2 text-sm text-white ${
+            loading ? "bg-gray-400" : "bg-[#7b2c2c]"
+          }`}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+
+        <div className="flex justify-between text-xs">
+          <Link href="/reset-password" className="text-blue-600">
+            Forgot password?
+          </Link>
+          <Link href="/signup" className="text-blue-600">
+            Create account
+          </Link>
+        </div>
+      </div>
+    </AuthCard>
+  );
 }
