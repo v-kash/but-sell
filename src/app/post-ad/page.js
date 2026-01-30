@@ -97,7 +97,9 @@ export default function PostAdModal({ onClose }) {
 
     const res = await fetch("/api/ads", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(form),
     });
 
