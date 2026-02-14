@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import AuthCard from "@/components/AuthCard";
 import PasswordInput from "@/components/PasswordInput";
+import GoogleButton from "@/components/GoogleButton";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -97,6 +98,15 @@ export default function SignupPage() {
             Login
           </Link>
         </p>
+
+        {/* OR Divider */}
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="flex-1 h-px bg-gray-300" />
+          OR
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+
+        <GoogleButton />
       </div>
     </AuthCard>
   );

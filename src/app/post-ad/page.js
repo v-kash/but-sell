@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function PostAdModal({ onClose }) {
   const router = useRouter();
   const [form, setForm] = useState({
-    type: "buyer",
+    type: "buyer_receiver",
     contact: "",
     name: "",
     address: "",
@@ -159,11 +159,9 @@ export default function PostAdModal({ onClose }) {
               className="w-full border rounded px-3 py-2"
               onChange={(e) => updateField("type", e.target.value)}
             >
-              <option value="buyer">Buyer</option>
-              <option value="seller">Seller</option>
+              <option value="buyer_receiver">Buyer / Service Receiver</option>
+              <option value="seller_provider">Seller / Service Provider</option>
               <option value="renter">Renter</option>
-              <option value="service_provider">Service Provider</option>
-              <option value="service_reciever">Service Reciever</option>
             </select>
           </div>
 
@@ -188,21 +186,21 @@ export default function PostAdModal({ onClose }) {
             <input
               required
               placeholder="Enter address "
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 uppercase"
               onChange={(e) => updateField("address", e.target.value)}
             />
           </div>
 
           <input
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 uppercase"
             placeholder="Area"
             onChange={(e) => updateField("area", e.target.value)}
           />
 
           <input
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 uppercase"
             placeholder="Taluka/Tehsil"
             onChange={(e) => updateField("taluka", e.target.value)}
           />
@@ -210,7 +208,7 @@ export default function PostAdModal({ onClose }) {
           {/* District */}
           <input
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 uppercase"
             placeholder="District"
             onChange={(e) => updateField("district", e.target.value)}
           />
@@ -218,7 +216,7 @@ export default function PostAdModal({ onClose }) {
           {/* State */}
           <input
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 uppercase"
             placeholder="State"
             onChange={(e) => updateField("state", e.target.value)}
           />
@@ -226,7 +224,7 @@ export default function PostAdModal({ onClose }) {
           {/* Pincode */}
           <input
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 uppercase"
             placeholder="Pincode"
             onChange={(e) => updateField("pincode", e.target.value)}
           />
@@ -247,7 +245,7 @@ export default function PostAdModal({ onClose }) {
               <span className="text-white text-xl mt-1">*</span>
             </label>
             <input
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 uppercase"
               placeholder="Estimated Budget (Optional)"
               onChange={(e) => updateField("budget", e.target.value)}
             />
@@ -269,7 +267,7 @@ export default function PostAdModal({ onClose }) {
             </label>
             <textarea
               required
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 uppercase"
               placeholder="Description / Requirement (max 500 words)"
               rows={4}
               onChange={(e) =>

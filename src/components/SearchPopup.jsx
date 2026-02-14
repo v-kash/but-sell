@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 export default function SearchPopup({ mode, onClose, onSearch }) {
-  const [type, setType] = useState("buyer");
+  const [type, setType] = useState("buyer_receiver");
   const [pincode, setPincode] = useState("");
   const [district, setDistrict] = useState("");
   const [description, setDescription] = useState("");
@@ -38,11 +38,10 @@ export default function SearchPopup({ mode, onClose, onSearch }) {
             value={type}
             onChange={(e) => setType(e.target.value)}
           >
-            <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
+            <option value="buyer_receiver">Buyer / Service Receiver</option>
+              <option value="seller_provider">Seller / Service Provider</option>
             <option value="renter">Renter</option>
-            <option value="service_provider">Service Provider</option>
-            <option value="service_receiver">Service Receiver</option>
+            
           </select>
         )}
 

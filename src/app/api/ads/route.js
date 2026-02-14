@@ -23,6 +23,13 @@ export async function POST(req) {
 
     const body = await req.json();
 
+    const upperCaseData = Object.fromEntries(
+      Object.entries(body).map(([key, value]) => [
+        key,
+        typeof value === "string" ? value.toUpperCase() : value,
+      ]),
+    );
+
     const {
       type,
       contact,
@@ -39,7 +46,7 @@ export async function POST(req) {
       detailedDescription,
       images,
       validityDays,
-    } = body;
+    } = upperCaseData;
 
     // Basic validation
     if (!type || !contact || !address || !district || !state || !pincode) {

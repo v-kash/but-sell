@@ -22,7 +22,7 @@ function debounce(fn, delay = 300) {
 
 export default function HomePage() {
   const [filters, setFilters] = useState({
-    type: "",
+    type: "buyer_receiver",
     title: "",
     state: "",
     pincode: "",
@@ -56,14 +56,11 @@ export default function HomePage() {
     setLoading(true);
 
     const params = new URLSearchParams({
-      entity:
-        filters.type === "buyer" ||
-        filters.type === "seller" ||
-        filters.type === "service_provider" ||
-        filters.type === "service_reciever" ||
-        filters.type === "renter"
-          ? "ads"
-          : filters.type,
+      entity: ["buyer_receiver", "seller_provider", "renter"].includes(
+        filters.type,
+      )
+        ? "ads"
+        : filters.type,
     });
 
     if (filters.pincode) params.append("pincode", filters.pincode);
@@ -72,13 +69,7 @@ export default function HomePage() {
 
     // only ads have type
     if (
-      [
-        "buyer",
-        "seller",
-        "service_provider",
-        "service_reciever",
-        "renter",
-      ].includes(filters.type)
+      ["buyer_receiver", "seller_provider", "renter"].includes(filters.type)
     ) {
       params.append("type", filters.type);
     }
@@ -271,12 +262,9 @@ export default function HomePage() {
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             >
-              <option value="">Select Type</option>
-              <option value="buyer">Buyer</option>
-              <option value="seller">Seller</option>
+              <option value="buyer_receiver">Buyer / Service Receiver</option>
+              <option value="seller_provider">Seller / Service Provider</option>
               <option value="renter">Renter</option>
-              <option value="service_provider">Service Provider</option>
-              <option value="service_reciever">Service Reciever</option>
               <option value="employees">Employee</option>
               <option value="employers">Employer</option>
             </select>
@@ -386,13 +374,9 @@ export default function HomePage() {
                 <EmployerCard key={`${e.id}-${idx}`} employer={e} />
               ))}
 
-            {[
-              "buyer",
-              "seller",
-              "service_provider",
-              "service_reciever",
-              "renter",
-            ].includes(filters.type) &&
+            {["buyer_receiver", "seller_provider", "renter"].includes(
+              filters.type,
+            ) &&
               results.map((a, idx) => <AdCard key={`${a.id}-${idx}`} ad={a} />)}
           </div>
         </div>
