@@ -1,99 +1,11 @@
-// import { NextResponse } from "next/server";
-// import pool from "@/lib/db";
-
-// export async function POST(req) {
-//   try {
-//     const body = await req.json();
-//     console.log(body);
-//     const {
-//       contact,
-//       name,
-//       area,
-//       address,
-//       district,
-//       state,
-//       pincode,
-//       education,
-//       workProfile,
-//       experience,
-//       resumeFiles,
-//     } = body;
-
-//     // Basic validation
-//     if (
-//       !contact ||
-//       !name ||
-//       !address ||
-//       !district ||
-//       !state ||
-//       !pincode ||
-//       !workProfile
-//     ) {
-//       return NextResponse.json(
-//         { error: "Missing required fields" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const query = `
-//       INSERT INTO employees (
-//         name,
-//         contact,
-//         area,
-//         address,
-//         district,
-//         state,
-//         pincode,
-//         education,
-//         work_profile,
-//         experience,
-//         resume_files
-//       )
-//       VALUES (
-//         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
-//       )
-//       RETURNING id;
-//     `;
-
-//     const values = [
-//       name,
-//       contact,
-//       area || "",
-//       address,
-//       district,
-//       state,
-//       pincode,
-//       education || "",
-//       workProfile,
-//       experience || "",
-//       JSON.stringify(resumeFiles || []),
-//     ];
-
-//     const result = await pool.query(query, values);
-
-//     return NextResponse.json({
-//       success: true,
-//       employeeId: result.rows[0].id,
-//     });
-//   } catch (error) {
-//     console.error("Register Employee Error:", error);
-//     return NextResponse.json(
-//       { error: "Failed to register employee" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { meiliClient } from "@/lib/meili";
 
 export async function POST(req) {
   try {
-    // ✅ READ COOKIE (App Router style)
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -114,7 +26,7 @@ export async function POST(req) {
       );
     }
 
-    const userId = decoded.id; // ✅ IMPORTANT
+    const userId = decoded.id;
 
     const body = await req.json();
     const {
@@ -131,7 +43,6 @@ export async function POST(req) {
       resumeFiles,
     } = body;
 
-    // ✅ Validation
     if (
       !contact ||
       !name ||
@@ -147,7 +58,6 @@ export async function POST(req) {
       );
     }
 
-    // ✅ INCLUDE user_id
     const query = `
       INSERT INTO employees (
         user_id,
@@ -166,30 +76,57 @@ export async function POST(req) {
       VALUES (
         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
       )
-      RETURNING id;
+      RETURNING *;
     `;
 
     const values = [
-      userId,                           // $1  ✅
-      name,                             // $2
-      contact,                          // $3
-      area || "",                       // $4
-      address,                          // $5
-      district,                         // $6
-      state,                            // $7
-      pincode,                          // $8
-      education || "",                  // $9
-      workProfile,                     // $10
-      experience || "",                // $11
-      JSON.stringify(resumeFiles || [])// $12
+      userId,
+      name,
+      contact,
+      area || "",
+      address,
+      district,
+      state,
+      pincode,
+      education || "",
+      workProfile,
+      experience || "",
+      JSON.stringify(resumeFiles || []),
     ];
 
     const result = await pool.query(query, values);
+    const newEmployee = result.rows[0];
+
+    /* =========================
+       🔥 SYNC TO MEILISEARCH
+    ========================== */
+
+    const index = meiliClient.index("employees");
+
+    await index.addDocuments([
+      {
+        id: newEmployee.id,
+        user_id: newEmployee.user_id,
+        name: newEmployee.name,
+        contact: newEmployee.contact,
+        area: newEmployee.area,
+        address: newEmployee.address,
+        district: newEmployee.district,
+        state: newEmployee.state,
+        pincode: newEmployee.pincode,
+        education: newEmployee.education,
+        work_profile: newEmployee.work_profile,
+        experience: newEmployee.experience,
+        resume_files: newEmployee.resume_files,
+        created_at: newEmployee.created_at,
+      },
+    ]);
 
     return NextResponse.json({
       success: true,
-      employeeId: result.rows[0].id,
+      employeeId: newEmployee.id,
     });
+
   } catch (error) {
     console.error("Register Employee Error:", error);
     return NextResponse.json(

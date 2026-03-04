@@ -12,9 +12,9 @@ export async function GET(req) {
 
   const user = jwt.verify(token, process.env.JWT_SECRET);
 
- if (!user.isAdmin) {
-  return Response.json({ error: "Forbidden" }, { status: 403 });
-}
+  if (!user.isAdmin) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
 
@@ -23,7 +23,8 @@ export async function GET(req) {
   const district = searchParams.get("district");
   const taluka = searchParams.get("taluka");
   const pincode = searchParams.get("pincode");
-
+const approvalStatus = searchParams.get("approval_status");
+const paymentStatus = searchParams.get("payment_status");
   const page = Number(searchParams.get("page") || 1);
   const limit = 20;
   const offset = (page - 1) * limit;
@@ -34,14 +35,33 @@ export async function GET(req) {
 
   if (q) {
     conditions.push(`
-      (
-        title ILIKE $${idx}
-        OR contact ILIKE $${idx}
-      )
-    `);
+    (
+      title ILIKE $${idx}
+      OR contact ILIKE $${idx}
+      
+      OR subscription_plan ILIKE $${idx}
+      
+      OR district ILIKE $${idx}
+OR state ILIKE $${idx}
+OR taluka ILIKE $${idx}
+OR pincode ILIKE $${idx}
+    )
+  `);
     values.push(`%${q}%`);
     idx++;
   }
+
+  if (approvalStatus) {
+  conditions.push(`approval_status = $${idx}`);
+  values.push(approvalStatus);
+  idx++;
+}
+
+if (paymentStatus) {
+  conditions.push(`payment_status = $${idx}`);
+  values.push(paymentStatus);
+  idx++;
+}
 
   if (state) {
     conditions.push(`state ILIKE $${idx}`);

@@ -2,6 +2,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { HomeIcon } from "@heroicons/react/24/outline";
 
 export default function Header() {
   const { loggedIn, user, setLoggedIn, setUser, loading } = useAuth();
@@ -21,12 +22,21 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#7b2c2c] text-white px-6 py-4 flex justify-between items-center z-50 shadow-md">
-      <h2
-        className="text-xl font-semibold cursor-pointer"
-        onClick={() => router.push("/")}
-      >
-        BuySellRS
-      </h2>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center gap-2 hover:opacity-90"
+        >
+          <HomeIcon className="w-6 h-6 text-white" />
+        </button>
+
+        <h2
+          className="text-xl font-semibold cursor-pointer"
+          onClick={() => router.push("/")}
+        >
+          BuySellRS
+        </h2>
+      </div>
 
       {loggedIn ? (
         <div className="flex items-center gap-3 text-sm">

@@ -38,6 +38,16 @@ export default function AdminAdsPage() {
     fetchAds();
   }, [page]);
 
+  const handleApproval = async (adId, action) => {
+    await fetch("/api/admin/ads/approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ adId, action }),
+    });
+
+    fetchAds(page);
+  };
+
   const toggleRecommended = async (adId, value) => {
     await fetch("/api/admin/ads/toggle", {
       method: "POST",
@@ -76,30 +86,51 @@ export default function AdminAdsPage() {
       allIndia: ad.all_india || false,
       budget: ad.budget || "",
       detailedDescription: ad.detailed_description || "",
-      validityDays: ad.validity_days || 3,
       rating: ad.rating || 0,
     });
 
     setShowEditModal(true);
   };
 
- const submitEdit = async () => {
-  await fetch(`/api/admin/ads/${editingAd.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(editForm),
-  });
+  const submitEdit = async () => {
+    await fetch(`/api/admin/ads/${editingAd.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
 
-  setShowEditModal(false);
-  fetchAds(page);
-};
-
+    setShowEditModal(false);
+    fetchAds(page);
+  };
 
   if (loading) return <Spinner size={40} />;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <h1 className="text-xl font-semibold mb-4">Admin – Ads</h1>
+
+      <select
+        className="border px-2 py-2"
+        onChange={(e) =>
+          setFilters({ ...filters, approval_status: e.target.value })
+        }
+      >
+        <option value="">All approval</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+
+      <select
+        className="border px-2 py-2"
+        onChange={(e) =>
+          setFilters({ ...filters, payment_status: e.target.value })
+        }
+      >
+        <option value="">All Payments</option>
+        <option value="pending">Pending</option>
+        <option value="verified">Verified</option>
+      </select>
 
       {/* Search */}
       <div className="flex gap-2 mb-4">
@@ -119,12 +150,15 @@ export default function AdminAdsPage() {
       </div>
 
       {/* Table */}
-      <table className="w-full border text-sm">
+      <table className="w-full border text-sm ">
         <thead className="bg-gray-100">
           <tr>
             <th className="border p-2">Name</th>
             <th className="border p-2">Contact</th>
             <th className="border p-2">State</th>
+            <th className="border p-2">Plan</th>
+            <th className="border p-2">Payment</th>
+            <th className="border p-2">Approval</th>
             <th className="border p-2">Recommended</th>
             <th className="border p-2">Actions</th>
           </tr>
@@ -141,9 +175,24 @@ export default function AdminAdsPage() {
 
           {ads.map((ad) => (
             <tr key={ad.id}>
-              <td className="border p-2">{ad.title}</td>
-              <td className="border p-2">{ad.contact}</td>
-              <td className="border p-2">{ad.state}</td>
+              <td className="border p-2">
+                <div className="w-[160px] truncate" title={ad.title}>
+                  {ad.title}
+                </div>
+              </td>
+              <td className="border p-2">
+                <div className="w-[140px] truncate" title={ad.contact}>
+                  {ad.contact}
+                </div>
+              </td>
+              <td className="border p-2">
+                <div className="w-[120px] truncate" title={ad.state}>
+                  {ad.state}
+                </div>
+              </td>
+              <td className="border p-2">{ad.subscription_plan}</td>
+              <td className="border p-2">{ad.payment_status}</td>
+              <td className="border p-2">{ad.approval_status}</td>
               <td className="border p-2 text-center">
                 <input
                   type="checkbox"
@@ -151,21 +200,36 @@ export default function AdminAdsPage() {
                   onChange={(e) => toggleRecommended(ad.id, e.target.checked)}
                 />
               </td>
+              <td className="border p-2 text-center">
+                <div className="flex flex-wrap gap-1 justify-center">
+                  <button
+                    onClick={() => openEditModal(ad)}
+                    className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                  >
+                    Edit
+                  </button>
 
-              <td className="border p-2 text-center space-x-2">
-                <button
-                  onClick={() => openEditModal(ad)}
-                  className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
-                >
-                  Edit
-                </button>
+                  <button
+                    onClick={() => deleteAd(ad.id)}
+                    className="px-2 py-1 bg-red-500 text-white rounded text-xs"
+                  >
+                    Delete
+                  </button>
 
-                <button
-                  onClick={() => deleteAd(ad.id)}
-                  className="px-2 py-1 bg-red-500 text-white rounded text-xs"
-                >
-                  Delete
-                </button>
+                  <button
+                    onClick={() => handleApproval(ad.id, "approve")}
+                    className="px-2 py-1 bg-green-600 text-white rounded text-xs"
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() => handleApproval(ad.id, "reject")}
+                    className="px-2 py-1 bg-yellow-600 text-white rounded text-xs"
+                  >
+                    Reject
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

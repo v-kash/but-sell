@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 export default function SearchPopup({ mode, onClose, onSearch }) {
-  const [type, setType] = useState("buyer_receiver");
+  const [type, setType] = useState("seller_provider");
   const [pincode, setPincode] = useState("");
   const [district, setDistrict] = useState("");
   const [description, setDescription] = useState("");

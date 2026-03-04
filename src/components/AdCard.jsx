@@ -28,10 +28,26 @@ export default function AdCard({ ad }) {
     }
   }
 
+  // const submitRating = async () => {
+  //   if (!selectedRating) return;
+
+  //   await fetch("/api/rate-ad", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       adId: ad.id,
+  //       rating: selectedRating,
+  //     }),
+  //   });
+
+  //   setShowRatingModal(false);
+  //   window.location.reload();
+  // };
+
   const submitRating = async () => {
     if (!selectedRating) return;
 
-    await fetch("/api/rate-ad", {
+    const res = await fetch("/api/rate-ad", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -40,10 +56,14 @@ export default function AdCard({ ad }) {
       }),
     });
 
-    setShowRatingModal(false);
-    window.location.reload();
-  };
+    if (res.ok) {
+      setShowRatingModal(false);
 
+      // update UI without reload
+      ad.rating = selectedRating;
+      ad.rating_count = (ad.rating_count || 0) + 1;
+    }
+  };
   const handleRate = async (value) => {
     if (!loggedIn) {
       setShowLoginPopup(true);

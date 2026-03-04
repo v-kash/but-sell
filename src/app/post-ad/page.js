@@ -4,8 +4,26 @@ import { useRouter } from "next/navigation";
 
 export default function PostAdModal({ onClose }) {
   const router = useRouter();
+  // const [form, setForm] = useState({
+  //   type: "seller_provider",
+  //   contact: "",
+  //   name: "",
+  //   address: "",
+  //   area: "",
+  //   taluka: "",
+  //   district: "",
+  //   state: "",
+  //   pincode: "",
+  //   allIndia: false,
+  //   budget: "",
+  //   shortDescription: "",
+  //   detailedDescription: "",
+  //   images: [],
+  //   validityDays: 3,
+  // });
+
   const [form, setForm] = useState({
-    type: "buyer_receiver",
+    type: "seller_provider",
     contact: "",
     name: "",
     address: "",
@@ -19,10 +37,10 @@ export default function PostAdModal({ onClose }) {
     shortDescription: "",
     detailedDescription: "",
     images: [],
-    validityDays: 3,
+    subscriptionPlan: "welcome", // NEW
   });
-
   const [uploading, setUploading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   /* -----------------------------
      Helpers
@@ -89,17 +107,43 @@ export default function PostAdModal({ onClose }) {
   /* -----------------------------
      Submit Ad
   ----------------------------- */
+  // const submitAd = async () => {
+  //   // if (!form.contact || !form.address || !form.state || !form.pincode) {
+  //   //   alert("Please fill all required fields");
+  //   //   return;
+  //   // }
+
+  //   const res = await fetch("/api/ads", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(form),
+  //   });
+
+  //   const data = await res.json();
+
+  //   if (!res.ok) {
+  //     alert(data.error || "Failed to post ad");
+  //     return;
+  //   }
+
+  //   alert("Ad posted successfully! Redirecting to home...");
+
+  //   setTimeout(() => {
+  //     router.push("/");
+  //   }, 3000);
+  // };
+
   const submitAd = async () => {
-    // if (!form.contact || !form.address || !form.state || !form.pincode) {
-    //   alert("Please fill all required fields");
-    //   return;
-    // }
+    if (!form.subscriptionPlan) {
+      alert("Please select a subscription plan");
+      return;
+    }
 
     const res = await fetch("/api/ads", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
@@ -110,13 +154,14 @@ export default function PostAdModal({ onClose }) {
       return;
     }
 
-    alert("Ad posted successfully! Redirecting to home...");
+    // ✅ Show success message
+    setSuccess(true);
 
+    // Optional: redirect after 3 seconds
     setTimeout(() => {
       router.push("/");
     }, 3000);
   };
-
   return (
     <div className="w-full flex justify-center mt-10">
       <div className="bg-white w-[420px] rounded-lg shadow-md border">
@@ -159,8 +204,9 @@ export default function PostAdModal({ onClose }) {
               className="w-full border rounded px-3 py-2"
               onChange={(e) => updateField("type", e.target.value)}
             >
-              <option value="buyer_receiver">Buyer / Service Receiver</option>
               <option value="seller_provider">Seller / Service Provider</option>
+              <option value="buyer_receiver">Buyer / Service Receiver</option>
+              
               <option value="renter">Renter</option>
             </select>
           </div>
@@ -334,25 +380,76 @@ export default function PostAdModal({ onClose }) {
           </div>
 
           {/* Validity */}
-          <div>
-            <label className="flex justify-center items-center gap-1  ">
-              <span>Validity of the post (in days)</span>
-              <span className="text-white text-xl mt-1">*</span>
-            </label>
-            <input
-              className="w-full border rounded px-3 py-2 text-center"
-              value={form.validityDays}
-              onChange={(e) =>
-                updateField("validityDays", Number(e.target.value))
-              }
-            />
+          {/* Subscription Plans */}
+          <div className="border rounded-lg p-4 bg-gray-50">
+            <h3 className="text-center font-semibold mb-3">
+              Choose Subscription Plan <span className="text-red-500">*</span>
+            </h3>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 border rounded p-2 cursor-pointer hover:bg-gray-100">
+                <input
+                  type="radio"
+                  name="subscription"
+                  value="6months"
+                  required
+                  onChange={(e) =>
+                    updateField("subscriptionPlan", e.target.value)
+                  }
+                />
+                <span>6 Months – ₹200</span>
+              </label>
+
+              <label className="flex items-center gap-2 border rounded p-2 cursor-pointer hover:bg-gray-100">
+                <input
+                  type="radio"
+                  name="subscription"
+                  value="12months"
+                  onChange={(e) =>
+                    updateField("subscriptionPlan", e.target.value)
+                  }
+                />
+                <span>12 Months – ₹365</span>
+              </label>
+
+              <label className="flex items-center gap-2 border rounded p-2 cursor-pointer hover:bg-gray-100">
+                <input
+                  type="radio"
+                  name="subscription"
+                  value="welcome"
+                  onChange={(e) =>
+                    updateField("subscriptionPlan", e.target.value)
+                  }
+                />
+                <span className="text-green-600 font-medium">
+                  Welcome Offer – 6 Months FREE 🎉
+                </span>
+              </label>
+            </div>
           </div>
+          {/* QR Code Payment Section */}
+          {form.subscriptionPlan && form.subscriptionPlan !== "welcome" && (
+            <div className="text-center border rounded-lg p-4 bg-white">
+              <h4 className="font-medium mb-2">Scan & Pay</h4>
+
+              <img
+                src="/qr.jpeg" // put your QR in public folder
+                alt="QR Code"
+                className="w-80 h-100 mx-auto mb-2"
+              />
+            </div>
+          )}
 
           <p className="text-xs text-gray-500 text-center">
             Fields marked with <span className="text-red-500">*</span> are
             required
           </p>
-
+          {success && (
+            <div className="bg-green-50 border border-green-300 text-green-800 text-sm p-3 rounded text-center">
+              ✅ Your ad has been submitted. It will go live within 24 hours
+              after review.
+            </div>
+          )}
           {/* Submit */}
           <button
             type="submit"

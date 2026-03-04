@@ -1,15 +1,19 @@
+// app/api/search/route.js
+
 import { NextResponse } from "next/server";
-import pool from "@/lib/db";
+import { meiliClient } from "@/lib/meili";
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const entity = searchParams.get("entity"); // ads | employees | employers
+    const entity = searchParams.get("entity");
     const pincode = searchParams.get("pincode");
-    const location = searchParams.get("district"); // free-text location
-    const keyword = searchParams.get("q"); // description / requirement
-    const type = searchParams.get("type"); // ads only
+    const locationRaw = searchParams.get("district");
+    const location = locationRaw ? locationRaw.toLowerCase() : null;
+    const keyword = searchParams.get("q");
+    const type = searchParams.get("type");
+    const page = parseInt(searchParams.get("page") || "1");
 
     if (!entity) {
       return NextResponse.json(
@@ -18,156 +22,60 @@ export async function GET(req) {
       );
     }
 
-    if (!pincode && !location && !keyword) {
-      return NextResponse.json(
-        { error: "At least one search parameter is required" },
-        { status: 400 },
-      );
-    }
+    const index = meiliClient.index(entity);
 
-    let sql = "";
-    let values = [];
-    let i = 1;
+    /* BUILD FILTERS */
+    let filters = [];
 
-    /* ================= ADS ================= */
     if (entity === "ads") {
-      if (!type) {
-        return NextResponse.json(
-          { error: "Ad type is required" },
-          { status: 400 },
-        );
-      }
-
-      sql = `SELECT * FROM ads WHERE type = $${i++}`;
-      values.push(type);
-
-      const conditions = [];
-
-      // PINCODE
-      if (pincode) {
-        conditions.push(`pincode = $${i}`);
-        values.push(pincode);
-        i++;
-      }
-
-      // LOCATION (state / district / area / taluka)
-      if (location) {
-        conditions.push(`
-          (
-            state ILIKE $${i}
-            OR district ILIKE $${i}
-            OR area ILIKE $${i}
-            OR taluka ILIKE $${i}
-          )
-        `);
-        values.push(`%${location}%`);
-        i++;
-      }
-
-      // KEYWORD (ONLY detailed_description)
-      if (keyword) {
-        conditions.push(`
-    detailed_description ILIKE $${i}
-  `);
-        values.push(`%${keyword}%`);
-        i++;
-      }
-
-      if (conditions.length > 0) {
-        sql += ` AND (${conditions.join(" OR ")})`;
-      }
-
-      sql += ` ORDER BY created_at DESC LIMIT 50`;
+      filters.push(`approval_status = "approved"`);
+    }
+    // Ads type filter
+    if (entity === "ads" && type) {
+      filters.push(`type = "${type}"`);
     }
 
-    /* =============== EMPLOYEES =============== */
-    if (entity === "employees") {
-      sql = `SELECT * FROM employees WHERE 1=1`;
-
-      const conditions = [];
-
-      if (pincode) {
-        conditions.push(`pincode = $${i}`);
-        values.push(pincode);
-        i++;
-      }
-
-      if (location) {
-        conditions.push(`
-          (
-            state ILIKE $${i}
-            OR district ILIKE $${i}
-            OR area ILIKE $${i}
-            OR taluka ILIKE $${i}
-          )
-        `);
-        values.push(`%${location}%`);
-        i++;
-      }
-
-      if (keyword) {
-        conditions.push(`work_profile ILIKE $${i}`);
-        values.push(`%${keyword}%`);
-        i++;
-      }
-
-      if (conditions.length > 0) {
-        sql += ` AND (${conditions.join(" OR ")})`;
-      }
-
-      sql += ` ORDER BY created_at DESC LIMIT 50`;
+    // Pincode filter
+    if (pincode) {
+      filters.push(`pincode = "${pincode}"`);
     }
 
-    /* =============== EMPLOYERS =============== */
-    if (entity === "employers") {
-      sql = `SELECT * FROM employers WHERE 1=1`;
+    // Location OR block
+    // if (location) {
+    //   filters.push(
+    //     `(state = "${location}" OR district = "${location}" OR area = "${location}" OR taluka = "${location}")`,
+    //   );
+    // }
 
-      const conditions = [];
+    const filterString = filters.length > 0 ? filters.join(" AND ") : undefined;
 
-      // PINCODE
-      if (pincode) {
-        conditions.push(`pincode = $${i}`);
-        values.push(pincode);
-        i++;
-      }
+    const combinedQuery = [keyword, location].filter(Boolean).join(" ");
 
-      // LOCATION
-      if (location) {
-        conditions.push(`
-          (
-            state ILIKE $${i}
-            OR district ILIKE $${i}
-            OR area ILIKE $${i}
-            OR taluka ILIKE $${i}
-          )
-        `);
-        values.push(`%${location}%`);
-        i++;
-      }
+    // const results = await index.search(combinedQuery || "", {
+    //   filter: filterString,
+    //   limit: 20,
+    //   offset: (page - 1) * 20,
+    // });
 
-      // 🔥 KEYWORD MATCHES job_details (YOUR REQUIREMENT)
-      if (keyword) {
-        conditions.push(`job_details ILIKE $${i}`);
-        values.push(`%${keyword}%`);
-        i++;
-      }
-
-      if (conditions.length > 0) {
-        sql += ` AND (${conditions.join(" OR ")})`;
-      }
-
-      sql += ` ORDER BY created_at DESC LIMIT 50`;
-    }
-
-    const result = await pool.query(sql, values);
+    const results = await index.search(combinedQuery || "", {
+      filter: filterString,
+      limit: 20,
+      offset: (page - 1) * 20,
+      sort: [
+        "is_recommended:desc",
+        "rating:desc",
+        "rating_count:desc",
+        "created_at:desc",
+      ],
+    });
 
     return NextResponse.json({
       success: true,
-      count: result.rows.length,
-      data: result.rows,
+      count: results.hits.length,
+      data: results.hits,
     });
   } catch (error) {
-    console.error("Search Error:", error);
+    console.error("Search error:", error);
     return NextResponse.json({ error: "Search failed" }, { status: 500 });
   }
 }

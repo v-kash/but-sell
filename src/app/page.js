@@ -22,7 +22,7 @@ function debounce(fn, delay = 300) {
 
 export default function HomePage() {
   const [filters, setFilters] = useState({
-    type: "buyer_receiver",
+    type: "seller_provider",
     title: "",
     state: "",
     pincode: "",
@@ -37,11 +37,53 @@ export default function HomePage() {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const { loggedIn } = useAuth();
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     // Clear old results when type changes
     setResults([]);
   }, [filters.type]);
+
+  const loadMoreHome = async () => {
+    if (!hasMore) return;
+
+    setLoading(true);
+
+    const nextPage = page + 1;
+
+    const res = await fetch(`/api/home-listings?page=${nextPage}`);
+    const data = await res.json();
+
+    if (res.ok) {
+      setResults((prev) => [...prev, ...data.data]);
+      setPage(nextPage);
+
+      if (data.data.length < 12) {
+        setHasMore(false);
+      }
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const fetchHome = async () => {
+      setLoading(true);
+
+      const res = await fetch("/api/home-listings?page=1");
+      const data = await res.json();
+
+      if (res.ok) {
+        setResults(data.data);
+        setHasMore(data.data.length === 12); // if less than limit → no more
+        setPage(1);
+      }
+
+      setLoading(false);
+    };
+
+    fetchHome();
+  }, []);
 
   const handleSearch = async (reset = true) => {
     const hasAnySearch =
@@ -80,10 +122,23 @@ export default function HomePage() {
     const data = await res.json();
 
     if (res.ok) {
-      setResults((prev) => (reset ? data.data : [...prev, ...data.data]));
-      setPage(reset ? 1 : page + 1);
-    }
+      const newData = data.data;
 
+      if (reset) {
+        setResults(newData);
+        setPage(1);
+      } else {
+        setResults((prev) => [...prev, ...newData]);
+        setPage(page + 1);
+      }
+
+      // ✅ IMPORTANT
+      if (newData.length < 12) {
+        setHasMore(false); // no more data
+      } else {
+        setHasMore(true);
+      }
+    }
     setSearched(true);
     setLoading(false);
   };
@@ -105,7 +160,14 @@ export default function HomePage() {
       return;
     }
 
-    const res = await fetch(`/api/suggestions?q=${value}`);
+    // const res = await fetch(`/api/suggestions?q=${value}`);
+    const res = await fetch(
+      `/api/suggestions?q=${value}&entity=${
+        ["buyer_receiver", "seller_provider", "renter"].includes(filters.type)
+          ? "ads"
+          : filters.type
+      }`,
+    );
     const data = await res.json();
     setSuggestions(data);
   };
@@ -177,11 +239,11 @@ export default function HomePage() {
       <div className="bg-[#7b2c2c] text-white py-12">
         <div className="max-w-6xl mx-auto text-center px-4">
           <h1 className="text-3xl font-semibold mb-2">
-            Find What You Need, Sell What You Have
+            Find Job or anything
           </h1>
 
           <p className="text-sm mb-8">
-            Your local marketplace for buying, selling, renting, and services
+            Your local marketplace for buying, selling, rentor, and Job
           </p>
 
           {/* TOP BUTTONS */}
@@ -238,7 +300,9 @@ export default function HomePage() {
               onClick={() => setPopup({ open: true, mode: "employers" })}
             >
               <div className="font-semibold mb-1">List of Employer</div>
-              <div className="text-xs">(List of employers / job seekers)</div>
+              <div className="text-xs">
+                (List of employers / Ready to give job )
+              </div>
             </div>
 
             <div
@@ -246,7 +310,9 @@ export default function HomePage() {
               onClick={() => setPopup({ open: true, mode: "employees" })}
             >
               <div className="font-semibold mb-1">List of Employee</div>
-              <div className="text-xs">(List of employees / job seekers)</div>
+              <div className="text-xs">
+                (List of employees / Ready to do job )
+              </div>
             </div>
           </div>
         </div>
@@ -278,14 +344,20 @@ export default function HomePage() {
               }
             />
 
-            <input
-              className="border px-3 py-2 text-sm w-[260px]"
-              placeholder="State / District / area / Taluka (Tehsil)"
-              value={filters.state}
-              onChange={(e) =>
-                setFilters({ ...filters, state: e.target.value })
-              }
-            />
+            <div className="relative">
+              <input
+                className="border px-3 py-2 text-sm w-[260px] "
+                placeholder="State / District / area / Taluka (Tehsil)"
+                value={filters.state}
+                onChange={(e) =>
+                  setFilters({ ...filters, state: e.target.value })
+                }
+              />
+
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
+                *
+              </span>
+            </div>
             <div className="relative flex-1 min-w-[220px]">
               <input
                 className="border px-3 py-2 text-sm w-full"
@@ -344,6 +416,10 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
+
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
+                *
+              </span>
             </div>
 
             <button
@@ -358,9 +434,18 @@ export default function HomePage() {
         {/* RESULTS */}
         <div className=" pb-20">
           <div className="max-w-6xl mx-auto px-4 mt-4 space-y-4">
-            {results.length === 0 && (
+            {/* 🔄 LOADING STATE */}
+            {/* 🔄 Initial Loading */}
+            {loading && results.length === 0 && (
               <div className="bg-white border p-8 text-center text-sm">
-                No results found
+                Loading Ads...
+              </div>
+            )}
+
+            {/* ❌ No Listings At All (homepage case) */}
+            {!loading && results.length === 0 && (
+              <div className="bg-white border p-8 text-center text-sm">
+                No results
               </div>
             )}
 
@@ -380,15 +465,20 @@ export default function HomePage() {
               results.map((a, idx) => <AdCard key={`${a.id}-${idx}`} ad={a} />)}
           </div>
         </div>
-        {results.length > 0 && (
-          <div className="text-center mt-4">
-            <button
-              onClick={() => handleSearch(false)}
-              className="border px-6 py-2 bg-white text-sm"
-              disabled={loading}
-            >
-              {loading ? "Loading..." : "Load More"}
-            </button>
+        {!loading && results.length > 0 && (
+          <div className="text-center  pb-10">
+            {hasMore ? (
+              <button
+                onClick={loadMoreHome}
+                className="border px-6 py-2 bg-white text-sm"
+              >
+                Load More
+              </button>
+            ) : (
+              <div className="text-sm text-gray-500">
+                No more listings found
+              </div>
+            )}
           </div>
         )}
       </div>
