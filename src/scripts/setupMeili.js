@@ -106,9 +106,26 @@ async function setup() {
       "rating_count",
       "created_at",
     ]);
+
+
+
+    await meiliClient.index("employees").updateSortableAttributes([
+    "is_recommended",
+    "created_at",
+  ]);
+
+  /* EMPLOYERS */
+  await meiliClient.index("employers").updateSortableAttributes([
+    "is_recommended",
+    "created_at",
+  ]);
   console.log("✅ Meilisearch setup complete");
 
 
+    /* ADS */
+  
+
+  /* EMPLOYEES */
   
 }
 
