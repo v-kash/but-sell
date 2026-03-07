@@ -107,6 +107,9 @@ async function setup() {
       "created_at",
     ]);
   console.log("✅ Meilisearch setup complete");
+
+
+  
 }
 
 setup();

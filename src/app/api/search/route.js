@@ -57,16 +57,34 @@ export async function GET(req) {
     //   offset: (page - 1) * 20,
     // });
 
-    const results = await index.search(combinedQuery || "", {
-      filter: filterString,
-      limit: 20,
-      offset: (page - 1) * 20,
-      sort: [
+    // const results = await index.search(combinedQuery || "", {
+    //   filter: filterString,
+    //   limit: 20,
+    //   offset: (page - 1) * 20,
+    //   sort: [
+    //     "is_recommended:desc",
+    //     "rating:desc",
+    //     "rating_count:desc",
+    //     "created_at:desc",
+    //   ],
+    // });
+
+    const SORT_CONFIG = {
+      ads: [
         "is_recommended:desc",
         "rating:desc",
         "rating_count:desc",
         "created_at:desc",
       ],
+      employees: ["is_recommended:desc", "created_at:desc"],
+      employers: ["is_recommended:desc", "created_at:desc"],
+    };
+
+    const results = await index.search(combinedQuery || "", {
+      filter: filterString,
+      limit: 20,
+      offset: (page - 1) * 20,
+      sort: SORT_CONFIG[entity] || [],
     });
 
     return NextResponse.json({
